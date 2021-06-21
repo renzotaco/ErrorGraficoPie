@@ -1,0 +1,73 @@
+---
+title: "Graficar las respuestas del cuestionario por pregunta"
+output: html_notebook
+---
+
+Cargamos las librerias que necesita R
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+Cargamos la base de datos
+```{r}
+library(readxl)
+datos <- read_excel("CuestionarioR.xlsx")
+names(datos)
+datos$Q1
+```
+
+Convertimos los datos en porcentajes
+
+```{r}
+porcentajes <- datos %>% 
+                group_by(Q1) %>% 
+                count() %>% 
+                ungroup() %>% 
+                mutate(percentage=`n`/sum(`n`) * 100)
+porcentajes
+```
+Tener en cuenta que la columna de la respuestas deben ser letras "De acuerdo", "Desacuerdo", etc., cuando es número debemos agregar función factor(Q1)
+
+Hacemos el gráfico de torta o pie
+```{r}
+ggplot(porcentajes, aes(x=1, y=percentage, fill=factor(Q1))) +
+        geom_bar(stat="identity") +
+        geom_text(aes(label = paste0(round(percentage,1),"%")), 
+                  position = position_stack(vjust = 0.5)) +
+        coord_polar(theta = "y") + 
+        theme_void() + 
+        ggtitle ("Uso de TICS")
+```
+
+```{r}
+ggplot(porcentajes,aes(x="",y=percentage,fill=factor(Q1))) +
+	geom_bar(stat="identity",color="white")
+```
+
+```{r}
+pal1 <- c("forestgreen", "yellow", "orange")
+pal <- c(
+  "Serious" = "red",
+  "Significant" = "orange", 
+  "Minimal" = "yellow", 
+  "Strengths" = "forestgreen")
+
+ggplot(porcentajes,aes(x="",y=percentage,fill=factor(Q1))) +
+  geom_boxplot() + 
+  scale_fill_manual(values = c("red", "yellow",
+                               "blue", "orange",
+                               "green")) + 
+	geom_bar(stat="identity",color="white") + 
+	geom_text(aes(label = paste0(round(percentage,1),"%")), 
+                  position = position_stack(vjust = 0.5)) +
+	coord_polar("y") +
+	theme_void() +
+	labs(title="Uso de TICS") 
+```
+ggplot(data, aes(x, group = group, fill = factor(group))) +  # Properly adding colors
+  geom_boxplot() + 
+  scale_fill_manual(values = c("red", "yellow",
+                               "blue", "orange",
+                               "green"))
